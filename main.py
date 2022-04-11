@@ -5,7 +5,8 @@ from transformers.onnx.features import FeaturesManager
 
 if __name__ == '__main__':
     # 해당 모델로 가능한 기능의 목록을 볼 수 있습니다. (question-answering, ...)
-    distilbert_features = list(FeaturesManager.get_supported_features_for_model_type("roberta").keys())
+    distilbert_features = list(
+        FeaturesManager.get_supported_features_for_model_type("roberta").keys())
     print(distilbert_features)
 
     # 단어 토큰화 모듈을 불러옵니다.
@@ -32,7 +33,10 @@ if __name__ == '__main__':
     print([tokenizer.decode(e) for e in inputs["input_ids"][0]])
 
     # 세션에 입력값을 넣어 ONNX 연산을 수행합니다. 출력값은 제공한 순서대로 반환됩니다.
-    outputs = session.run(output_names=["start_logits", "end_logits"], input_feed=dict(inputs))
+    outputs = session.run(
+        input_feed=dict(inputs),
+        output_names=["start_logits", "end_logits"],
+    )
 
     # 결과값을 분석하여 정답 문자열을 획득합니다.
     answer = ' '.join(
