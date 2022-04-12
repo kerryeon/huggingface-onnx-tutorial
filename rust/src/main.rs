@@ -53,7 +53,6 @@ where
 
 /// Source: https://github.com/nbigaouette/onnxruntime-rs/blob/88c6bab938f278c92b90ec4b43c40f47debb9fa6/onnxruntime/tests/integration_tests.rs#L44
 fn download<'a>(filename: &'a str, url: &str) -> Result<&'a str> {
-    // Download the ImageNet class labels, matching SqueezeNet's classes.
     let labels_path = Path::new(env!("CARGO_MANIFEST_DIR")).join(filename);
     if !labels_path.exists() {
         println!("Downloading {:?} to {:?}...", url, labels_path);
@@ -128,8 +127,8 @@ fn main() -> Result<()> {
     println!("{:?}", &inputs);
 
     // 세션에 입력값을 넣어 ONNX 연산을 수행합니다. 출력값은 제공한 순서대로 반환됩니다.
-    let input_length = inputs.token_ids.len();
-    let input_ids = ndarray::Array::from_vec(inputs.token_ids).into_shape((1, input_length))?;
+    let input_shape = (1, inputs.token_ids.len());
+    let input_ids = ndarray::Array::from_vec(inputs.token_ids).into_shape(input_shape)?;
     let attention_mask = {
         let mut buf = input_ids.clone();
         buf.fill(1);
@@ -138,8 +137,8 @@ fn main() -> Result<()> {
     let outputs = session.run::<_, f32>(&[&input_ids, &attention_mask])?;
 
     // 결과값을 분석하여 정답 문자열을 획득합니다.
-    let start_logits = outputs[0].to_shape((1, input_length))?;
-    let end_logits = outputs[1].to_shape((1, input_length))?;
+    let start_logits = outputs[0].to_shape(input_shape)?;
+    let end_logits = outputs[1].to_shape(input_shape)?;
     let answer = find_answer(&input_ids, &start_logits, &end_logits);
     dbg!(answer
         .iter()
