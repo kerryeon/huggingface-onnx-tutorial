@@ -47,7 +47,8 @@ if __name__ == '__main__':
     )
 
     # 결과값을 분석하여 정답 클래스를 획득합니다.
-    # labels은 모델마다 다릅니다. `neutral`이 없을 수도 있습니다.
+    # labels은 모델마다 구성과 인덱스가 다릅니다. `neutral`이 없을 수도 있습니다.
     contradiction, entailment, neutral = 0, 1, 2
     results = np.exp(logits[:, [contradiction, entailment]])
-    print(results / np.sum(results))
+    prob = (results / np.sum(results))[0, 1]
+    print(f'Probability: {prob * 100:.4f}%')
