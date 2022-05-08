@@ -1,4 +1,4 @@
-# Huggingface + ONNX + QuestionAnswering = OK
+# Huggingface + ONNX + Rust = OK
 
 Huggingface 내 서비스되는 모델을 ONNX로 변환 후 테스트하는 예제입니다.
 
