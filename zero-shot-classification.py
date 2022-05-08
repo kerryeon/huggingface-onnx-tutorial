@@ -31,8 +31,6 @@ if __name__ == '__main__':
         "Last week I upgraded my iOS version and ever since then my phone has been overheating whenever I use your app.",
         # Question
         "This example is mobile.",
-        padding=True,
-        truncation=True,
         # ONNX에 넣기 위해 numpy 형식으로 결과를 반환합니다.
         return_tensors="np",
     )
