@@ -17,7 +17,7 @@ python -m transformers.onnx \
     onnx  # 저장할 디렉토리
 
 # 3. 테스트하기
-python main.py
+python question-answering.py
 ```
 
 ### 2. Run the model with Rust
