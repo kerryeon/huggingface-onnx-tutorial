@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     # 단어 토큰화 모듈을 불러옵니다.
     tokenizer = AutoTokenizer.from_pretrained(
-        "Helsinki-NLP/opus-mt-ko-en",
+        "facebook/m2m100_418M",
     )
 
     # ONNX 세션을 생성합니다. 세션은 모델 정보를 가지고 있습니다.
@@ -25,6 +25,7 @@ if __name__ == '__main__':
     print([e.name for e in session.get_outputs()])
 
     # 입력값을 토큰화합니다.
+    tokenizer.src_lang = 'ko'
     inputs = tokenizer(
         # Source
         "아니 이게 될 리가 없잖아?",
@@ -39,11 +40,11 @@ if __name__ == '__main__':
     token_eos = inputs['input_ids'][0][-1]
 
     # 재귀 - 한 토큰씩 번역값을 생성합니다.
-    past = []  # 이전 출력값
+    past = [tokenizer.get_lang_id('en')]  # 이전 출력값
     while not past or past[-1] != token_eos:
         decoder_inputs = tokenizer(
             # Source
-            "<pad> " * (len(past) + 1),
+            "<pad> " * (len(past) + 2),
             # ONNX에 넣기 위해 numpy 형식으로 결과를 반환합니다.
             return_tensors="np",
             # EOS 등 필요없는 토큰은 버립니다.
@@ -56,7 +57,8 @@ if __name__ == '__main__':
             inputs[f'decoder_{key}'] = value
 
         # 이전 토큰값을 입력값에 반영합니다.
-        # * 첫 번째 토큰은 <PAD> 이어야 합니다.
+        # * 첫 번째 토큰은 </s> 이어야 합니다.
+        inputs["decoder_input_ids"][0][0] = token_eos
         for idx, token in enumerate(past, start=1):
             inputs["decoder_input_ids"][0][idx] = token
 
@@ -70,7 +72,7 @@ if __name__ == '__main__':
         )
 
         # 새로 추론한 토큰값을 추가합니다.
-        past.append(logits[0].argmax(-1)[-1])
+        past.append(logits[0].argmax(-1)[-2])
 
     # 토큰화된 출력값 상태를 확인할 수 있습니다.
     print([tokenizer.decode(e) for e in past])
