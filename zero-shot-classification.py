@@ -38,9 +38,16 @@ if __name__ == '__main__':
     # 토큰화된 입력값 상태를 확인할 수 있습니다.
     print([tokenizer.decode(e) for e in inputs["input_ids"][0]])
 
+    # 연산에 필요없는 입력값은 제거합니다.
+    inputs = {
+        key: value
+        for key, value in inputs.items()
+        if key in [str(e.name) for e in session.get_inputs()]
+    }
+
     # 세션에 입력값을 넣어 ONNX 연산을 수행합니다. 출력값은 제공한 순서대로 반환됩니다.
     logits, = session.run(
-        input_feed=dict(inputs),
+        input_feed=inputs,
         output_names=["logits"],
     )
 
